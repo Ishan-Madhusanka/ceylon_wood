@@ -11,21 +11,21 @@ const products = {
     desc: 'Solid Mahogany with dovetail joinery. Available with or without mirror, any custom size.',
     price: 'From Rs. 120,000',
     details: '🪵 Material: Mahogany\n🚪 3-door\n🪞 Mirror optional\n🚚 Delivery: 4–5 weeks',
-    images: ['images/wardrobe.jpg', 'images/wardrobe-2.jpg', 'images/wardrobe-3.jpg'],
+    images: ['image/almira1.jpeg', 'image/almira2.jpeg', 'image/almira3.jpeg'],
   },
   'sofa': {
     name: 'Colonial Sofa Set', tag: 'Popular',
     desc: 'Rubber Wood frame with high-density foam. 3+1+1 set with premium fabric cushions.',
     price: 'From Rs. 95,000',
     details: '🪵 Material: Rubber Wood\n🛋️ 3+1+1 set\n🎨 Custom fabric\n🚚 Delivery: 3–4 weeks',
-    images: ['images/sofa.png', 'images/sofa.png', 'images/sofa.png'],
+    images: ['image/sofa2.jpg', 'image/sofa3.jpg', 'image/sofa1.webp'],
   },
   'dressing-table': {
     name: 'Dressing Table', tag: 'New Arrival',
     desc: 'Jak Wood with adjustable mirror and 3 drawers. Hand-carved drawer handles.',
     price: 'From Rs. 45,000',
     details: '🪵 Material: Jak Wood\n🪞 Adjustable mirror\n🗄️ 3 drawers\n🚚 Delivery: 2–3 weeks',
-    images: ['images/dressing-table.jpg', 'images/dressing-table-2.jpg', 'images/dressing-table-3.jpg'],
+    images: ['image/dressingtable.jpg', 'image/dressingtable2.jpg', 'image/dressingtable3.png'],
   },
   'bed-frame': {
     name: 'King Size Bed Frame', tag: 'New',
@@ -126,6 +126,16 @@ function removeFromCart(key) {
   updateCartUI();
 }
 
+function changeQty(key, amount) {
+  const item = cart.find(i => i.key === key);
+  if (!item) return;
+  item.qty += amount;
+  if (item.qty <= 0) {
+    cart = cart.filter(i => i.key !== key);
+  }
+  updateCartUI();
+}
+
 function updateCartUI() {
   const total = cart.reduce((sum, i) => sum + i.qty, 0);
   document.getElementById('cart-count').textContent = total;
@@ -138,13 +148,27 @@ function updateCartUI() {
   itemsEl.innerHTML = cart.map(item =>
     '<div class="cart-item">' +
     '<div class="cart-item-img"><img src="' + item.image + '" alt="" onerror="this.style.display=\'none\'"></div>' +
-    '<div class="cart-item-info"><div class="cart-item-name">' + item.name + (item.qty > 1 ? ' x' + item.qty : '') + '</div>' +
-    '<div class="cart-item-price">' + item.price + '</div></div>' +
-    '<button class="cart-item-remove" onclick="removeFromCart(\'' + item.key + '\')">🗑️</button></div>'
+    '<div class="cart-item-info">' +
+      '<div class="cart-item-name">' + item.name + '</div>' +
+      '<div class="cart-item-qty">' +
+        '<button class="qty-btn" onclick="changeQty(\'' + item.key + '\', -1)">−</button>' +
+        '<span class="qty-num">' + item.qty + '</span>' +
+        '<button class="qty-btn" onclick="changeQty(\'' + item.key + '\', 1)">+</button>' +
+      '</div>' +
+      '<div class="cart-item-price">' + item.price + '</div>' +
+    '</div>' +
+    '<button class="cart-item-remove" onclick="removeFromCart(\'' + item.key + '\')">🗑️</button>' +
+    '</div>'
   ).join('');
   document.getElementById('cart-footer').style.display = 'block';
-  document.getElementById('cart-total').textContent = total + ' item' + (total > 1 ? 's' : '') + ' selected';
+  const totalPrice = cart.reduce((sum, i) => {
+  const num = parseInt(i.price.replace(/[^0-9]/g, ''));
+  return sum + (num * i.qty);
+}, 0);
+document.getElementById('cart-total').textContent = 'Rs. ' + totalPrice.toLocaleString();
+document.getElementById('cart-items-count').textContent = total + ' item' + (total > 1 ? 's' : '');
 }
+
 
 function toggleCart() {
   const sidebar = document.getElementById('cart-sidebar');
